@@ -1,6 +1,6 @@
 package com.codegym.demo.controller;
 
-import com.codegym.demo.model.City;
+import com.codegym.demo.model.Cities;
 import com.codegym.demo.service.ICityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,37 +17,37 @@ public class CityController {
     private ICityService cityService;
 
     @GetMapping
-    public ResponseEntity<Iterable<City>> getAllCity() {
+    public ResponseEntity<Iterable<Cities>> getAllCity() {
         return new ResponseEntity<>(cityService.findAll(), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<City> createNewCity(@RequestBody City city) {
-        return new ResponseEntity<>(cityService.save(city), HttpStatus.OK);
+    public ResponseEntity<Cities> createNewCity(@RequestBody Cities cities) {
+        return new ResponseEntity<>(cityService.save(cities), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<City> getCity(@PathVariable Long id) {
-        Optional<City> cityOptional = cityService.findById(id);
-        return cityOptional.map(city -> new ResponseEntity<>(city, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<Cities> getCity(@PathVariable Long id) {
+        Optional<Cities> cityOptional = cityService.findById(id);
+        return cityOptional.map(cities -> new ResponseEntity<>(cities, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<City> updateCity(@PathVariable Long id, @RequestBody City city) {
-        Optional<City> cityOptional = cityService.findById(id);
-        return cityOptional.map(cityIterator -> {
-            city.setId(cityIterator.getId());
-            cityService.save(city);
-            return new ResponseEntity<>(city, HttpStatus.OK);
+    public ResponseEntity<Cities> updateCity(@PathVariable Long id, @RequestBody Cities cities) {
+        Optional<Cities> cityOptional = cityService.findById(id);
+        return cityOptional.map(citiesIterator -> {
+            cities.setId(citiesIterator.getId());
+            cityService.save(cities);
+            return new ResponseEntity<>(cities, HttpStatus.OK);
         }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<City> deleteCity(@PathVariable Long id) {
-        Optional<City> cityOptional = cityService.findById(id);
-        return cityOptional.map(city -> {
+    public ResponseEntity<Cities> deleteCity(@PathVariable Long id) {
+        Optional<Cities> cityOptional = cityService.findById(id);
+        return cityOptional.map(cities -> {
             cityService.remove(id);
-            return new ResponseEntity<>(city, HttpStatus.OK);
+            return new ResponseEntity<>(cities, HttpStatus.OK);
         }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

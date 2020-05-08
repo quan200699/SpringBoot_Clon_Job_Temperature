@@ -1,6 +1,6 @@
 package com.codegym.demo.service;
 
-import com.codegym.demo.model.City;
+import com.codegym.demo.model.Cities;
 import com.codegym.demo.repository.CityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,18 +13,18 @@ public class CityService implements ICityService {
     private CityRepository cityRepository;
 
     @Override
-    public Iterable<City> findAll() {
+    public Iterable<Cities> findAll() {
         return cityRepository.findAll();
     }
 
     @Override
-    public Optional<City> findById(Long id) {
+    public Optional<Cities> findById(Long id) {
         return cityRepository.findById(id);
     }
 
     @Override
-    public City save(City city) {
-        return cityRepository.save(city);
+    public Cities save(Cities cities) {
+        return cityRepository.save(cities);
     }
 
     @Override

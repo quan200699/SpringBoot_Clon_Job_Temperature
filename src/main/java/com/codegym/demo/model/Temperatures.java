@@ -9,12 +9,10 @@ import javax.persistence.Id;
 
 @Entity
 @Data
-public class City {
+public class Temperatures {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-
-    private String country;
+    private String temperature;
 }

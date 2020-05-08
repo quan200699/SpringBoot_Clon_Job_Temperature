@@ -1,6 +1,6 @@
 package com.codegym.demo.service;
 
-import com.codegym.demo.model.City;
+import com.codegym.demo.model.Cities;
 
-public interface ICityService extends IGeneralService<City> {
+public interface ICityService extends IGeneralService<Cities> {
 }
