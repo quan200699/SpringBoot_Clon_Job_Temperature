@@ -32,4 +32,13 @@ public class TemperatureController {
         return temperaturesOptional.map(temperatures -> new ResponseEntity<>(temperatures, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Temperatures> updateTemperature(@PathVariable Long id, @RequestBody Temperatures temperatures) {
+        Optional<Temperatures> temperaturesOptional = temperatureService.findById(id);
+        return temperaturesOptional.map(temperaturesIterator -> {
+            temperatures.setId(temperaturesIterator.getId());
+            temperatureService.save(temperatures);
+            return new ResponseEntity<>(temperatures, HttpStatus.OK);
+        }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 }
