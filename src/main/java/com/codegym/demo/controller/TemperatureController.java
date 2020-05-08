@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/temperatures")
@@ -23,4 +25,11 @@ public class TemperatureController {
     public ResponseEntity<Temperatures> createNewTemperature(@RequestBody Temperatures temperatures) {
         return new ResponseEntity<>(temperatureService.save(temperatures), HttpStatus.OK);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Temperatures> getTemperature(@PathVariable Long id) {
+        Optional<Temperatures> temperaturesOptional = temperatureService.findById(id);
+        return temperaturesOptional.map(temperatures -> new ResponseEntity<>(temperatures, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
 }
