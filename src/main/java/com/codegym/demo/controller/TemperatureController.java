@@ -5,7 +5,9 @@ import com.codegym.demo.service.temperature.ITemperatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 
@@ -49,5 +51,24 @@ public class TemperatureController {
             temperatureService.remove(id);
             return new ResponseEntity<>(temperatures, HttpStatus.OK);
         }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
+    private void getEmployees() {
+        final String uri = "https://api.weather.gov/gridpoints/TOP/31,80/forecast";
+
+        RestTemplate restTemplate = new RestTemplate();
+        String result = restTemplate.getForObject(uri, String.class);
+        String[] resultArray = result.split("\n");
+        String temperature = resultArray[68].trim();
+        temperature = temperature.split(" ")[1];
+        temperature = temperature.split(",")[0];
+        String temperatureUnit = resultArray[69].trim();
+        temperatureUnit = temperatureUnit.split(" ")[1];
+        temperatureUnit = temperatureUnit.split("")[1];
+        Temperatures temperatures = new Temperatures();
+        temperatures.setTemperature(temperature + " " + temperatureUnit);
+        temperatureService.save(temperatures);
+        System.out.println(result);
     }
 }
