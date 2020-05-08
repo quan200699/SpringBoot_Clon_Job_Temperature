@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Date;
 import java.util.Optional;
 
 @RestController
@@ -25,6 +26,9 @@ public class TemperatureController {
 
     @PostMapping
     public ResponseEntity<Temperatures> createNewTemperature(@RequestBody Temperatures temperatures) {
+        long currentTime = System.currentTimeMillis();
+        Date createdDate = new Date(currentTime);
+        temperatures.setCreatedTime(createdDate);
         return new ResponseEntity<>(temperatureService.save(temperatures), HttpStatus.OK);
     }
 
@@ -67,6 +71,6 @@ public class TemperatureController {
         temperatureUnit = temperatureUnit.split("")[1];
         Temperatures temperatures = new Temperatures();
         temperatures.setTemperature(temperature + " " + temperatureUnit);
-        temperatureService.save(temperatures);
+        createNewTemperature(temperatures);
     }
 }
