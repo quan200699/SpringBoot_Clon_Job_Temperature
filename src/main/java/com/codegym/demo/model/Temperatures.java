@@ -2,10 +2,7 @@ package com.codegym.demo.model;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -15,4 +12,7 @@ public class Temperatures {
     private Long id;
 
     private String temperature;
+
+    @ManyToOne
+    private Cities cities;
 }
