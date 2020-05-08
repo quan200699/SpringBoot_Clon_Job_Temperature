@@ -1,4 +1,4 @@
-package com.codegym.demo.service;
+package com.codegym.demo.service.city;
 
 import com.codegym.demo.model.Cities;
 import com.codegym.demo.repository.CityRepository;

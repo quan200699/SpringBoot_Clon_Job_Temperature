@@ -1,7 +1,7 @@
 package com.codegym.demo.controller;
 
 import com.codegym.demo.model.Cities;
-import com.codegym.demo.service.ICityService;
+import com.codegym.demo.service.city.ICityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
