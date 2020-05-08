@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/cities")
@@ -22,5 +24,11 @@ public class CityController {
     @PostMapping
     public ResponseEntity<City> createNewCity(@RequestBody City city) {
         return new ResponseEntity<>(cityService.save(city), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<City> getCity(@PathVariable Long id) {
+        Optional<City> cityOptional = cityService.findById(id);
+        return cityOptional.map(city -> new ResponseEntity<>(city, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
