@@ -35,10 +35,9 @@ public class CityController {
     @PutMapping("/{id}")
     public ResponseEntity<City> updateCity(@PathVariable Long id, @RequestBody City city) {
         Optional<City> cityOptional = cityService.findById(id);
-        if (!cityOptional.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        city.setId(cityOptional.get().getId());
-        return new ResponseEntity<>(city, HttpStatus.OK);
+        return cityOptional.map(cityIterator -> {
+            city.setId(cityIterator.getId());
+            return new ResponseEntity<>(city, HttpStatus.OK);
+        }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
