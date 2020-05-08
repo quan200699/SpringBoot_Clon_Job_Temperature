@@ -41,4 +41,13 @@ public class TemperatureController {
             return new ResponseEntity<>(temperatures, HttpStatus.OK);
         }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Temperatures> deleteTemperature(@PathVariable Long id) {
+        Optional<Temperatures> temperaturesOptional = temperatureService.findById(id);
+        return temperaturesOptional.map(temperatures -> {
+            temperatureService.remove(id);
+            return new ResponseEntity<>(temperatures, HttpStatus.OK);
+        }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 }
