@@ -37,6 +37,16 @@ public class CityController {
         Optional<City> cityOptional = cityService.findById(id);
         return cityOptional.map(cityIterator -> {
             city.setId(cityIterator.getId());
+            cityService.save(city);
+            return new ResponseEntity<>(city, HttpStatus.OK);
+        }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<City> deleteCity(@PathVariable Long id) {
+        Optional<City> cityOptional = cityService.findById(id);
+        return cityOptional.map(city -> {
+            cityService.remove(id);
             return new ResponseEntity<>(city, HttpStatus.OK);
         }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
