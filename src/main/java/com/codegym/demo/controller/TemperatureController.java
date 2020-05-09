@@ -1,20 +1,24 @@
 package com.codegym.demo.controller;
 
+import com.codegym.demo.model.Cities;
 import com.codegym.demo.model.Temperatures;
+import com.codegym.demo.service.city.ICityService;
 import com.codegym.demo.service.temperature.ITemperatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @CrossOrigin("*")
@@ -22,6 +26,9 @@ import java.util.TimeZone;
 public class TemperatureController {
     @Autowired
     private ITemperatureService temperatureService;
+
+    @Autowired
+    private ICityService cityService;
 
     @GetMapping
     public ResponseEntity<Iterable<Temperatures>> getAllTemperature() {
@@ -71,18 +78,37 @@ public class TemperatureController {
 
     @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
     private void getTemperature() {
-        final String uri = "https://api.weather.gov/gridpoints/TOP/31,80/forecast";
-        RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(uri, String.class);
-        String[] resultArray = result.split("\n");
-        String temperature = resultArray[68].trim();
-        temperature = temperature.split(" ")[1];
-        temperature = temperature.split(",")[0];
-        String temperatureUnit = resultArray[69].trim();
-        temperatureUnit = temperatureUnit.split(" ")[1];
-        temperatureUnit = temperatureUnit.split("")[1];
+        URL url = null;
+        Scanner scanner = null;
+        try {
+            url = new URL("https://forecast.weather.gov/MapClick.php?lat=37.7772&lon=-122.4168&fbclid=IwAR0vy1obwdR8YYh-o_R1Nmh0_lNpXzaDv1XSKfizhF1fIGASa3_TG_Mi43g#.XrWB7BMzb_T");
+            scanner = new Scanner(new InputStreamReader(url.openStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        scanner.useDelimiter("\\\\Z");
+        String content = scanner.next();
+        scanner.close();
+        content = content.replace("\\\\R", "");
+        Pattern temperature = Pattern.compile("class=\"myforecast-current-sm\">(.*?)&deg;C</p>");
+        Pattern city = Pattern.compile("href=\"https://www.weather.gov/mtr\">(.*?)</a>");
+        Matcher result = temperature.matcher(content);
+        Cities cities = new Cities();
         Temperatures temperatures = new Temperatures();
-        temperatures.setTemperature(temperature + " " + temperatureUnit);
-        createNewTemperature(temperatures);
+        while (result.find()) {
+            temperatures.setTemperature(result.group(1));
+        }
+        Matcher result1 = city.matcher(content);
+        while (result1.find()) {
+            cities.setName(result1.group(1));
+        }
+        Optional<Cities> citiesOptional = cityService.findByName(cities.getName());
+        if (!citiesOptional.isPresent()) {
+            cityService.save(cities);
+        } else {
+            cities.setId(citiesOptional.get().getId());
+        }
+        temperatures.setCities(cities);
+        temperatureService.save(temperatures);
     }
 }
