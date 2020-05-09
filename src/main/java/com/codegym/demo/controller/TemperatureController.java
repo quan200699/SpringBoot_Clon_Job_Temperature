@@ -9,8 +9,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @RestController
 @CrossOrigin("*")
@@ -28,6 +32,14 @@ public class TemperatureController {
     public ResponseEntity<Temperatures> createNewTemperature(@RequestBody Temperatures temperatures) {
         long currentTime = System.currentTimeMillis();
         Date createdDate = new Date(currentTime);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        String currentDate = dateFormat.format(createdDate);
+        try {
+            createdDate = dateFormat.parse(currentDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         temperatures.setCreatedTime(createdDate);
         return new ResponseEntity<>(temperatureService.save(temperatures), HttpStatus.OK);
     }
@@ -57,7 +69,7 @@ public class TemperatureController {
         }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @Scheduled(cron = "0 0 */3 * * *", zone = "Asia/Saigon")
+    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
     private void getEmployees() {
         final String uri = "https://api.weather.gov/gridpoints/TOP/31,80/forecast";
         RestTemplate restTemplate = new RestTemplate();
