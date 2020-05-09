@@ -70,7 +70,7 @@ public class TemperatureController {
     }
 
     @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
-    private void getEmployees() {
+    private void getTemperature() {
         final String uri = "https://api.weather.gov/gridpoints/TOP/31,80/forecast";
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject(uri, String.class);
