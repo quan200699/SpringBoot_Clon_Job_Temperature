@@ -1,5 +1,6 @@
 package com.codegym.demo.service.temperature;
 
+import com.codegym.demo.model.Cities;
 import com.codegym.demo.model.Temperatures;
 import com.codegym.demo.repository.TemperatureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,5 +31,10 @@ public class TemperatureService implements ITemperatureService {
     @Override
     public void remove(Long id) {
         temperatureRepository.deleteById(id);
+    }
+
+    @Override
+    public Iterable<Temperatures> findAllByCities(Cities cities) {
+        return temperatureRepository.findAllByCities(cities);
     }
 }

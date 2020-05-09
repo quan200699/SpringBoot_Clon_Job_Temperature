@@ -1,7 +1,9 @@
 package com.codegym.demo.controller;
 
 import com.codegym.demo.model.Cities;
+import com.codegym.demo.model.Temperatures;
 import com.codegym.demo.service.city.ICityService;
+import com.codegym.demo.service.temperature.ITemperatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,9 @@ import java.util.Optional;
 public class CityController {
     @Autowired
     private ICityService cityService;
+
+    @Autowired
+    private ITemperatureService temperatureService;
 
     @GetMapping
     public ResponseEntity<Iterable<Cities>> getAllCity() {
@@ -48,6 +53,15 @@ public class CityController {
         return cityOptional.map(cities -> {
             cityService.remove(id);
             return new ResponseEntity<>(cities, HttpStatus.OK);
+        }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/{id}/temperatures")
+    public ResponseEntity<Iterable<Temperatures>> getAllTemperatureByCity(@PathVariable Long id) {
+        Optional<Cities> citiesOptional = cityService.findById(id);
+        return citiesOptional.map(cities -> {
+            Iterable<Temperatures> temperatures = temperatureService.findAllByCities(cities);
+            return new ResponseEntity<>(temperatures, HttpStatus.OK);
         }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
