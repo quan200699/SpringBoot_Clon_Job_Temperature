@@ -148,9 +148,11 @@ public class WebhookController {
     }
 
     @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
-    private void crawlerData() {
+    private Temperatures crawlerData() {
         URL url = null;
         Scanner scanner = null;
+        Temperatures temperatures = new Temperatures();
+        Cities cities = new Cities();
         try {
             url = new URL("https://forecast.weather.gov/MapClick.php?lat=37.7772&lon=-122.4168&fbclid=IwAR0vy1obwdR8YYh-o_R1Nmh0_lNpXzaDv1XSKfizhF1fIGASa3_TG_Mi43g#.XrWB7BMzb_T");
             scanner = new Scanner(new InputStreamReader(url.openStream()));
@@ -163,6 +165,16 @@ public class WebhookController {
         content = content.replace("\\\\R", "");
         String temperature = getTemperature(content);
         String city = getCity(content);
+        Optional<Cities> citiesOptional = cityService.findByName(city);
+        if (!citiesOptional.isPresent()) {
+            cities.setName(city);
+            cityService.save(cities);
+        } else {
+            cities.setId(citiesOptional.get().getId());
+        }
+        temperatures.setCities(cities);
+        temperatures.setTemperature(temperature);
+        return temperatureService.save(temperatures);
     }
 
     private String getTemperature(String content) {
