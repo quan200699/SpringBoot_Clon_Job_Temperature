@@ -146,7 +146,7 @@ public class WebhookController {
         logger.error("Message could not be sent. An unexpected error occurred.", e);
     }
 
-    @Scheduled(cron = "0 0 */3 * * *", zone = "Asia/Saigon")
+    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
         Temperatures currentTemperature = crawlerData();
@@ -166,7 +166,7 @@ public class WebhookController {
         Temperatures temperatures = new Temperatures();
         Cities cities = new Cities();
         try {
-            url = new URL("https://forecast.weather.gov/MapClick.php?lat=37.7772&lon=-122.4168&fbclid=IwAR0vy1obwdR8YYh-o_R1Nmh0_lNpXzaDv1XSKfizhF1fIGASa3_TG_Mi43g#.XrWB7BMzb_T");
+            url = new URL("https://www.worldweatheronline.com/hanoi-weather/vn.aspx");
             scanner = new Scanner(new InputStreamReader(url.openStream()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -190,7 +190,7 @@ public class WebhookController {
     }
 
     private String getTemperature(String content) {
-        Pattern temperature = Pattern.compile("class=\"myforecast-current-sm\">(.*?)&deg;C</p>");
+        Pattern temperature = Pattern.compile("class=\"report_text temperature\" style=\"color:#F1C151;\">(.*?) &deg;c</div>");
         Matcher result = temperature.matcher(content);
         String temperatures = "";
         while (result.find()) {
@@ -200,7 +200,7 @@ public class WebhookController {
     }
 
     private String getCity(String content) {
-        Pattern city = Pattern.compile("href=\"https://www.weather.gov/mtr\">(.*?)</a>");
+        Pattern city = Pattern.compile("href=\"https://www.worldweatheronline.com/ha-noi-weather/vn.aspx\" title=\"Ha Noi holiday weather\">(.*?)</a>");
         String cities = "";
         Matcher result = city.matcher(content);
         while (result.find()) {
