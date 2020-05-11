@@ -76,7 +76,7 @@ public class WebhookController {
                 }
             } else {
                 String senderId = event.senderId();
-                sendTextMessageUser(senderId, "Tôi là bot chỉ có thể xử lý tin nhắn văn bản.");
+                sendTextMessageUser(senderId, "Bot chỉ có thể xử lý tin nhắn văn bản.");
             }
         });
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -90,37 +90,25 @@ public class WebhookController {
             Optional<User> userOptional = userService.findById(id);
             if (userOptional.isPresent()) {
                 if (messageText.equalsIgnoreCase("stop")) {
-                    sendTextMessageUser(senderId, "Ban da dung cuoc tro chuyen");
+                    sendTextMessageUser(senderId, "Bạn đã dừng dịch vụ nhận thông tin thời tiết định kỳ");
                     userOptional.get().setEnable(false);
+                } else {
+                    if (!userOptional.get().isEnable()) {
+                        userOptional.get().setEnable(true);
+                        sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký dịch vụ nhận thông tin thời tiết định kỳ");
+                    } else {
+                        sendTextMessageUser(senderId, "Xin chào. Bạn đã đăng ký dịch vụ này");
+                    }
                 }
             }
-
-//            else {
-//                if (userOptional.isPresent()) {
-//                    if (!userOptional.get().isEnable()) {
-//                        userOptional.get().setEnable(true);
-//                    } else {
-//                        if (messageText.equalsIgnoreCase("1")) {
-//                            Script scriptMenu = scriptService.findScriptByContent(scriptContent.get(0));
-//                            scriptContent.clear();
-//                            scriptMenu(senderId, scriptMenu, scriptContent);
-//                            handleTextMessageEvent(event);
-//                        } else if (messageText.equalsIgnoreCase("2")) {
-//                            Script scriptMenu = scriptService.findScriptByContent(scriptContent.get(1));
-//                            scriptContent.clear();
-//                            scriptMenu(senderId, scriptMenu, scriptContent);
-//                            ;
-//                            handleTextMessageEvent(event);
-//                        }
-//                    }
-//                }
-//            }
         } else {
             User user = new User();
             user.setId(id);
             user.setEnable(true);
             userService.save(user);
-            sendTextMessageUser(senderId, "Xin chao thanh vien moi");
+            sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký nhận thông tin thời tiết định kỳ");
+            sendTextMessageUser(senderId, "Chúng tôi sẽ gửi thông tin thời tiết cho bạn 3 giờ/lần");
+            sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ stop");
         }
 
     }
