@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -53,7 +52,6 @@ public class WebhookController {
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
 
     private final Messenger messenger;
-
 
     @Autowired
     public WebhookController(final Messenger messenger) {
@@ -123,7 +121,7 @@ public class WebhookController {
             userService.save(user);
             sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký nhận thông tin thời tiết định kỳ");
             sendTextMessageUser(senderId, "Chúng tôi sẽ gửi thông tin thời tiết cho bạn 3 giờ/lần");
-//            sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ stop");
+            sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ stop");
         }
 
     }
