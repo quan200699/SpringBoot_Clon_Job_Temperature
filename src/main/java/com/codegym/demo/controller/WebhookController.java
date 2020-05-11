@@ -156,6 +156,7 @@ public class WebhookController {
     @Scheduled(cron = "* * * * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
+        ArrayList<Cities> cities = (ArrayList<Cities>) cityService.findAll();
         Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
         Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE, PATTERN_CITY_DN);
         Temperatures currentHCMTemperature = crawlerData(URL_CRAWL_HCM, PATTERN_TEMPERATURE, PATTERN_CITY_HCM);
@@ -165,6 +166,22 @@ public class WebhookController {
             for (User user : users) {
                 sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
                         + city + " là " + currentHNTemperature.getTemperature() + " độ C");
+            }
+        }
+        citiesOptional = cityService.findById(currentDNTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentDNTemperature.getTemperature() + " độ C");
+            }
+        }
+        citiesOptional = cityService.findById(currentHCMTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentHCMTemperature.getTemperature() + " độ C");
             }
         }
     }
