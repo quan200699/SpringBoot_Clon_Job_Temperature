@@ -111,7 +111,7 @@ public class WebhookController {
                         userOptional.get().setEnable(true);
                         sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký dịch vụ nhận thông tin thời tiết định kỳ");
                     } else {
-                        sendTextMessageUser(senderId, "Xin chào. Bạn đã đăng ký dịch vụ này");
+                        sendTextMessageUser(senderId, "Xin chào. Bạn đã đăng ký dịch vụ này.\nNếu muốn hủy dịch vụ vui lòng gõ stop");
                     }
                 }
             }
