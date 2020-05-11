@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.github.messenger4j.Messenger.*;
-import static com.github.messenger4j.Messenger.CHALLENGE_REQUEST_PARAM_NAME;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
@@ -147,7 +147,16 @@ public class WebhookController {
         logger.error("Message could not be sent. An unexpected error occurred.", e);
     }
 
-    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
+    @Scheduled(cron = "*/20 * * * * *", zone = "Asia/Saigon")
+    private void sendTemperatureMessage() {
+        Iterable<User> users = userService.findAllByEnableIsFalse();
+        Temperatures currentTemperature = crawlerData();
+        for (User user : users) {
+            sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                    + currentTemperature.getCities().getName() + " là " + currentTemperature.getTemperature() + " độ C");
+        }
+    }
+
     private Temperatures crawlerData() {
         URL url = null;
         Scanner scanner = null;
