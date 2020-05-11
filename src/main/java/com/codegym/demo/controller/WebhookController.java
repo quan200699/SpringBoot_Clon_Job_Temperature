@@ -148,7 +148,7 @@ public class WebhookController {
 
     @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
-        ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsFalse();
+        ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
         Temperatures currentTemperature = crawlerData();
         for (User user : users) {
             sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
