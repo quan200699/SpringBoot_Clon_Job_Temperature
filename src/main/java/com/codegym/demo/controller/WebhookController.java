@@ -42,8 +42,12 @@ import static java.util.Optional.of;
 @RequestMapping("/webhook")
 public class WebhookController {
     public static final String URL_CRAWL_HN = "https://www.worldweatheronline.com/ha-noi-weather/vn.aspx";
-    public static final String PATTERN_TEMPERATURE_HN = "class=\"report_text temperature\" style=\"color:#F1C151;\">(.*?) &deg;c</div>";
+    public static final String PATTERN_TEMPERATURE = "class=\"report_text temperature\" style=\"color:#F1C151;\">(.*?) &deg;c</div>";
     public static final String PATTERN_CITY_HN = "href=\"https://www.worldweatheronline.com/ha-noi-weather/vn.aspx\" title=\"Ha Noi holiday weather\">(.*?)</a>";
+    public static final String URL_CRAWL_DN = "https://www.worldweatheronline.com/da-nang-weather/vn.aspx";
+    public static final String PATTERN_CITY_DN = "href=\"https://www.worldweatheronline.com/da-nang-weather/vn.aspx\">(.*?)</a>";
+    public static final String URL_CRAWL_HCM = "https://www.worldweatheronline.com/ho-chi-minh-city-weather/vn.aspx";
+    public static final String PATTERN_CITY_HCM = "href=\"https://www.worldweatheronline.com/ho-chi-minh-city-weather/vn.aspx\">(.*?)</a>";
     @Autowired
     private UserService userService;
 
@@ -149,16 +153,18 @@ public class WebhookController {
         logger.error("Message could not be sent. An unexpected error occurred.", e);
     }
 
-    @Scheduled(cron = "0 0 */3 * * *", zone = "Asia/Saigon")
+    @Scheduled(cron = "* * * * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
-        Temperatures currentTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE_HN, PATTERN_CITY_HN);
-        Optional<Cities> citiesOptional = cityService.findById(currentTemperature.getCities().getId());
+        Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
+        Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE, PATTERN_CITY_DN);
+        Temperatures currentHCMTemperature = crawlerData(URL_CRAWL_HCM, PATTERN_TEMPERATURE, PATTERN_CITY_HCM);
+        Optional<Cities> citiesOptional = cityService.findById(currentHNTemperature.getCities().getId());
         if (citiesOptional.isPresent()) {
             String city = citiesOptional.get().getName();
             for (User user : users) {
                 sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
-                        + city + " là " + currentTemperature.getTemperature() + " độ C");
+                        + city + " là " + currentHNTemperature.getTemperature() + " độ C");
             }
         }
     }
