@@ -150,9 +150,13 @@ public class WebhookController {
     private void sendTemperatureMessage() {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
         Temperatures currentTemperature = crawlerData();
-        for (User user : users) {
-            sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
-                    + currentTemperature.getCities().getName() + " là " + currentTemperature.getTemperature() + " độ C");
+        Optional<Cities> citiesOptional = cityService.findById(currentTemperature.getCities().getId());
+        if (!citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentTemperature.getTemperature() + " độ C");
+            }
         }
     }
 
