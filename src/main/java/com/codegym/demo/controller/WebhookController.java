@@ -117,9 +117,12 @@ public class WebhookController {
                 } else {
                     if (!userOptional.get().isEnable()) {
                         userOptional.get().setEnable(true);
-                        sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký dịch vụ nhận thông tin thời tiết định kỳ");
+                        sendTextMessageUser(senderId, "Xin chào");
+                        sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ cập nhật thông tin thời tiết");
                     } else {
-                        sendTextMessageUser(senderId, "Xin chào. Bạn đã đăng ký dịch vụ này.\nNếu muốn hủy dịch vụ vui lòng gõ stop");
+                        sendTextMessageUser(senderId, "Xin chào");
+                        sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ này.");
+                        sendTextMessageUser(senderId, "Nếu muốn hủy dịch vụ vui lòng gõ stop.");
                     }
                 }
             }
@@ -158,7 +161,7 @@ public class WebhookController {
     private void sendTemperatureMessage() {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
         Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
-        Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE, PATTERN_CITY_DN);
+        Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE_DN, PATTERN_CITY_DN);
         Temperatures currentHCMTemperature = crawlerData(URL_CRAWL_HCM, PATTERN_TEMPERATURE, PATTERN_CITY_HCM);
         Optional<Cities> citiesOptional = cityService.findById(currentHNTemperature.getCities().getId());
         if (citiesOptional.isPresent()) {
