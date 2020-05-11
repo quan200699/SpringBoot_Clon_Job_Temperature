@@ -1,6 +1,10 @@
 package com.codegym.demo.controller;
 
+import com.codegym.demo.model.Cities;
+import com.codegym.demo.model.Temperatures;
 import com.codegym.demo.model.User;
+import com.codegym.demo.service.city.ICityService;
+import com.codegym.demo.service.temperature.ITemperatureService;
 import com.codegym.demo.service.user.UserService;
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.exception.MessengerApiException;
@@ -17,11 +21,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Optional;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.github.messenger4j.Messenger.*;
 import static com.github.messenger4j.Messenger.CHALLENGE_REQUEST_PARAM_NAME;
@@ -34,6 +43,12 @@ import static java.util.Optional.of;
 public class WebhookController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ITemperatureService temperatureService;
+
+    @Autowired
+    private ICityService cityService;
 
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
 
@@ -130,5 +145,43 @@ public class WebhookController {
 
     private void handleSendException(Exception e) {
         logger.error("Message could not be sent. An unexpected error occurred.", e);
+    }
+
+    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
+    private void crawlerData() {
+        URL url = null;
+        Scanner scanner = null;
+        try {
+            url = new URL("https://forecast.weather.gov/MapClick.php?lat=37.7772&lon=-122.4168&fbclid=IwAR0vy1obwdR8YYh-o_R1Nmh0_lNpXzaDv1XSKfizhF1fIGASa3_TG_Mi43g#.XrWB7BMzb_T");
+            scanner = new Scanner(new InputStreamReader(url.openStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        scanner.useDelimiter("\\\\Z");
+        String content = scanner.next();
+        scanner.close();
+        content = content.replace("\\\\R", "");
+        String temperature = getTemperature(content);
+        String city = getCity(content);
+    }
+
+    private String getTemperature(String content) {
+        Pattern temperature = Pattern.compile("class=\"myforecast-current-sm\">(.*?)&deg;C</p>");
+        Matcher result = temperature.matcher(content);
+        String temperatures = "";
+        while (result.find()) {
+            temperatures = result.group(1);
+        }
+        return temperatures;
+    }
+
+    private String getCity(String content) {
+        Pattern city = Pattern.compile("href=\"https://www.weather.gov/mtr\">(.*?)</a>");
+        String cities = "";
+        Matcher result = city.matcher(content);
+        while (result.find()) {
+            cities = result.group(1);
+        }
+        return cities;
     }
 }
