@@ -43,6 +43,7 @@ import static java.util.Optional.of;
 public class WebhookController {
     public static final String URL_CRAWL_HN = "https://www.worldweatheronline.com/ha-noi-weather/vn.aspx";
     public static final String PATTERN_TEMPERATURE = "class=\"report_text temperature\" style=\"color:#F1C151;\">(.*?) &deg;c</div>";
+    public static final String PATTERN_TEMPERATURE_DN = "class=\"report_text temperature\" style=\"color:#E9D97E;\">(.*?) &deg;c</div>";
     public static final String PATTERN_CITY_HN = "href=\"https://www.worldweatheronline.com/ha-noi-weather/vn.aspx\" title=\"Ha Noi holiday weather\">(.*?)</a>";
     public static final String URL_CRAWL_DN = "https://www.worldweatheronline.com/da-nang-weather/vn.aspx";
     public static final String PATTERN_CITY_DN = "href=\"https://www.worldweatheronline.com/da-nang-weather/vn.aspx\">(.*?)</a>";
@@ -153,10 +154,9 @@ public class WebhookController {
         logger.error("Message could not be sent. An unexpected error occurred.", e);
     }
 
-    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
+    @Scheduled(cron = "0 0 */3 * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
-        ArrayList<Cities> cities = (ArrayList<Cities>) cityService.findAll();
         Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
         Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE, PATTERN_CITY_DN);
         Temperatures currentHCMTemperature = crawlerData(URL_CRAWL_HCM, PATTERN_TEMPERATURE, PATTERN_CITY_HCM);
