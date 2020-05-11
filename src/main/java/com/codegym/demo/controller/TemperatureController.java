@@ -8,9 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -30,17 +27,6 @@ public class TemperatureController {
 
     @PostMapping
     public ResponseEntity<Temperatures> createNewTemperature(@RequestBody Temperatures temperatures) {
-        long currentTime = System.currentTimeMillis();
-        Date createdDate = new Date(currentTime);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
-        String currentDate = dateFormat.format(createdDate);
-        try {
-            createdDate = dateFormat.parse(currentDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        temperatures.setCreatedTime(createdDate);
         return new ResponseEntity<>(temperatureService.save(temperatures), HttpStatus.OK);
     }
 
