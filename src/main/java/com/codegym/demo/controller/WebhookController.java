@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -147,7 +148,7 @@ public class WebhookController {
 
     @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
-        Iterable<User> users = userService.findAllByEnableIsFalse();
+        ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsFalse();
         Temperatures currentTemperature = crawlerData();
         for (User user : users) {
             sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
