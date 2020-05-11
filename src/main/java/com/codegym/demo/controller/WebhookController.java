@@ -151,7 +151,7 @@ public class WebhookController {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
         Temperatures currentTemperature = crawlerData();
         Optional<Cities> citiesOptional = cityService.findById(currentTemperature.getCities().getId());
-        if (!citiesOptional.isPresent()) {
+        if (citiesOptional.isPresent()) {
             String city = citiesOptional.get().getName();
             for (User user : users) {
                 sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
