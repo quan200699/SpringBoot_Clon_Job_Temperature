@@ -41,6 +41,9 @@ import static java.util.Optional.of;
 @CrossOrigin("*")
 @RequestMapping("/webhook")
 public class WebhookController {
+    public static final String URL_CRAWL_HN = "https://www.worldweatheronline.com/ha-noi-weather/vn.aspx";
+    public static final String PATTERN_TEMPERATURE_HN = "class=\"report_text temperature\" style=\"color:#F1C151;\">(.*?) &deg;c</div>";
+    public static final String PATTERN_CITY_HN = "href=\"https://www.worldweatheronline.com/ha-noi-weather/vn.aspx\" title=\"Ha Noi holiday weather\">(.*?)</a>";
     @Autowired
     private UserService userService;
 
@@ -149,7 +152,7 @@ public class WebhookController {
     @Scheduled(cron = "0 0 */3 * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
-        Temperatures currentTemperature = crawlerData();
+        Temperatures currentTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE_HN, PATTERN_CITY_HN);
         Optional<Cities> citiesOptional = cityService.findById(currentTemperature.getCities().getId());
         if (citiesOptional.isPresent()) {
             String city = citiesOptional.get().getName();
@@ -160,13 +163,13 @@ public class WebhookController {
         }
     }
 
-    private Temperatures crawlerData() {
+    private Temperatures crawlerData(String urlCrawl, String patternTemperature, String patternCity) {
         URL url = null;
         Scanner scanner = null;
         Temperatures temperatures = new Temperatures();
         Cities cities = new Cities();
         try {
-            url = new URL("https://www.worldweatheronline.com/hanoi-weather/vn.aspx");
+            url = new URL(urlCrawl);
             scanner = new Scanner(new InputStreamReader(url.openStream()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -175,8 +178,8 @@ public class WebhookController {
         String content = scanner.next();
         scanner.close();
         content = content.replace("\\\\R", "");
-        String temperature = getTemperature(content);
-        String city = getCity(content);
+        String temperature = getTemperature(content, patternTemperature);
+        String city = getCity(content, patternCity);
         Optional<Cities> citiesOptional = cityService.findByName(city);
         if (!citiesOptional.isPresent()) {
             cities.setName(city);
@@ -189,8 +192,8 @@ public class WebhookController {
         return temperatureService.save(temperatures);
     }
 
-    private String getTemperature(String content) {
-        Pattern temperature = Pattern.compile("class=\"report_text temperature\" style=\"color:#F1C151;\">(.*?) &deg;c</div>");
+    private String getTemperature(String content, String patternTemperature) {
+        Pattern temperature = Pattern.compile(patternTemperature);
         Matcher result = temperature.matcher(content);
         String temperatures = "";
         while (result.find()) {
@@ -199,8 +202,8 @@ public class WebhookController {
         return temperatures;
     }
 
-    private String getCity(String content) {
-        Pattern city = Pattern.compile("href=\"https://www.worldweatheronline.com/ha-noi-weather/vn.aspx\" title=\"Ha Noi holiday weather\">(.*?)</a>");
+    private String getCity(String content, String patternCity) {
+        Pattern city = Pattern.compile(patternCity);
         String cities = "";
         Matcher result = city.matcher(content);
         while (result.find()) {
