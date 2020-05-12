@@ -4,7 +4,7 @@ import com.codegym.demo.model.User;
 import com.codegym.demo.service.IGeneralService;
 
 public interface IUserService extends IGeneralService<User> {
-    Iterable<User> findAllByEnableIsTrue();
+    Iterable<User> findAllByStatusIsTrue();
 
-    Iterable<User> findAllByEnableIsFalse();
+    Iterable<User> findAllByStatusIsFalse();
 }

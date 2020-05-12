@@ -112,10 +112,10 @@ public class WebhookController {
             if (userOptional.isPresent()) {
                 if (messageText.equalsIgnoreCase("stop")) {
                     sendTextMessageUser(senderId, "Bạn đã dừng dịch vụ nhận thông tin thời tiết định kỳ");
-                    userOptional.get().setEnable(false);
+                    userOptional.get().setStatus(false);
                 } else {
-                    if (!userOptional.get().isEnable()) {
-                        userOptional.get().setEnable(true);
+                    if (!userOptional.get().isStatus()) {
+                        userOptional.get().setStatus(true);
                         sendTextMessageUser(senderId, "Xin chào");
                         sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ cập nhật thông tin thời tiết");
                     } else {
@@ -128,7 +128,7 @@ public class WebhookController {
         } else {
             User user = new User();
             user.setId(id);
-            user.setEnable(true);
+            user.setStatus(true);
             userService.save(user);
             sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký nhận thông tin thời tiết định kỳ");
             sendTextMessageUser(senderId, "Chúng tôi sẽ gửi thông tin thời tiết cho bạn 3 giờ/lần");
@@ -158,7 +158,7 @@ public class WebhookController {
 
     @Scheduled(cron = "0 */10 * * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
-        ArrayList<User> users = (ArrayList<User>) userService.findAllByEnableIsTrue();
+        ArrayList<User> users = (ArrayList<User>) userService.findAllByStatusIsTrue();
         Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
         Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE, PATTERN_CITY_DN);
         Temperatures currentHCMTemperature = crawlerData(URL_CRAWL_HCM, PATTERN_TEMPERATURE, PATTERN_CITY_HCM);
