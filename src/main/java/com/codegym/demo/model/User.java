@@ -13,5 +13,5 @@ public class User {
     @Id
     private Long id;
 
-    private boolean status;
+    private boolean enable;
 }

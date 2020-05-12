@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Iterable<User> findAllByStatusIsTrue();
+    Iterable<User> findAllByEnableIsTrue();
 
-    Iterable<User> findAllByStatusIsFalse();
+    Iterable<User> findAllByEnableIsFalse();
 }
