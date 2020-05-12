@@ -158,7 +158,7 @@ public class WebhookController {
         logger.error("Message could not be sent. An unexpected error occurred.", e);
     }
 
-    @Scheduled(cron = "0 */10 * * * *", zone = "Asia/Saigon")
+    @Scheduled(cron = "0 0 */1 * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByStatusIsTrue();
         Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
