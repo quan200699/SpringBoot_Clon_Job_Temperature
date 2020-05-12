@@ -121,7 +121,7 @@ public class WebhookController {
                     } else {
                         sendTextMessageUser(senderId, "Xin chào");
                         sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ này.");
-                        sendTextMessageUser(senderId, "Nếu muốn hủy dịch vụ vui lòng gõ stop.");
+                        sendTextMessageUser(senderId, "Nếu muốn hủy dịch vụ vui lòng gõ hủy.");
                     }
                 }
             }
