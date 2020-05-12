@@ -112,6 +112,7 @@ public class WebhookController {
             if (userOptional.isPresent()) {
                 if (messageText.equalsIgnoreCase("hủy")) {
                     userOptional.get().setStatus(false);
+                    userService.save(userOptional.get());
                     sendTextMessageUser(senderId, "Bạn đã dừng dịch vụ nhận thông tin thời tiết định kỳ");
                 } else {
                     if (!userOptional.get().isStatus()) {
