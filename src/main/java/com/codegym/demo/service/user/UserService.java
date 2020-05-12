@@ -33,12 +33,12 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Iterable<User> findAllByEnableIsTrue() {
-        return userRepository.findAllByEnableIsTrue();
+    public Iterable<User> findAllByStatusIsTrue() {
+        return userRepository.findAllByStatusIsTrue();
     }
 
     @Override
-    public Iterable<User> findAllByEnableIsFalse() {
-        return userRepository.findAllByEnableIsFalse();
+    public Iterable<User> findAllByStatusIsFalse() {
+        return userRepository.findAllByStatusIsFalse();
     }
 }
