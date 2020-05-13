@@ -117,6 +117,7 @@ public class WebhookController {
                 } else {
                     if (!userOptional.get().isStatus()) {
                         userOptional.get().setStatus(true);
+                        userService.save(userOptional.get());
                         sendTextMessageUser(senderId, "Xin chào");
                         sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ cập nhật thông tin thời tiết");
                     } else {
