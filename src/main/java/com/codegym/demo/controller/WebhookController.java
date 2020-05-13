@@ -167,11 +167,7 @@ public class WebhookController {
         Optional<Cities> citiesOptional = cityService.findById(currentHNTemperature.getCities().getId());
         if (citiesOptional.isPresent()) {
             String city = citiesOptional.get().getName();
-            int hour = currentHNTemperature.getCreatedTime().getHours();
-            int minutes = currentHNTemperature.getCreatedTime().getMinutes();
             for (User user : users) {
-                sendTextMessageUser(user.getId().toString(), "Thông tin thời tiết lúc "
-                        + hour + " giờ" + minutes + " phút");
                 sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
                         + city + " là " + currentHNTemperature.getTemperature() + " độ C");
             }
