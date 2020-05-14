@@ -38,6 +38,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.codegym.demo.StaticVariable.*;
 import static com.github.messenger4j.Messenger.*;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -47,14 +48,6 @@ import static org.apache.tomcat.util.file.ConfigFileLoader.getInputStream;
 @CrossOrigin("*")
 @RequestMapping("/webhook")
 public class WebhookController {
-    public static final String API_URL = "http://api.worldweatheronline.com/premium/v1/weather.ashx?key=81fcb678531041aa9b365912201305&q=ha+noi&num_of_days=1&format=xml";
-    public static final String URL_CRAWL_HN = "https://www.worldweatheronline.com/ha-noi-weather/vn.aspx";
-    public static final String PATTERN_TEMPERATURE = "class=\"report_text temperature\" style=\"(.*?)\">(.*?) &deg;c</div>";
-    public static final String PATTERN_CITY_HN = "href=\"https://www.worldweatheronline.com/ha-noi-weather/vn.aspx\" title=\"Ha Noi holiday weather\">(.*?)</a>";
-    public static final String URL_CRAWL_DN = "https://www.worldweatheronline.com/da-nang-weather/vn.aspx";
-    public static final String PATTERN_CITY_DN = "href=\"https://www.worldweatheronline.com/da-nang-weather/vn.aspx\">(.*?)</a>";
-    public static final String URL_CRAWL_HCM = "https://www.worldweatheronline.com/ho-chi-minh-city-weather/vn.aspx";
-    public static final String PATTERN_CITY_HCM = "href=\"https://www.worldweatheronline.com/ho-chi-minh-city-weather/vn.aspx\">(.*?)</a>";
     @Autowired
     private UserService userService;
 
@@ -167,10 +160,6 @@ public class WebhookController {
 
     @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
-        try {
-            callAPI(API_URL);
-        } catch (IOException e) {
-        }
         ArrayList<User> users = (ArrayList<User>) userService.findAllByStatusIsTrue();
         Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
         Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE, PATTERN_CITY_DN);
@@ -179,6 +168,39 @@ public class WebhookController {
         if (citiesOptional.isPresent()) {
             String city = citiesOptional.get().getName();
             for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thông tin thời tiết được cập nhật bằng crawl");
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentHNTemperature.getTemperature() + " độ C");
+            }
+        }
+        citiesOptional = cityService.findById(currentDNTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentDNTemperature.getTemperature() + " độ C");
+            }
+        }
+        citiesOptional = cityService.findById(currentHCMTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentHCMTemperature.getTemperature() + " độ C");
+            }
+        }
+        try {
+            currentHNTemperature = callAPI(API_URL_HN);
+            currentDNTemperature = callAPI(API_URL_DN);
+            currentHCMTemperature = callAPI(API_URL_HCM);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        citiesOptional = cityService.findById(currentHNTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thông tin thời tiết được cập nhật bằng cách gọi api");
                 sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
                         + city + " là " + currentHNTemperature.getTemperature() + " độ C");
             }
