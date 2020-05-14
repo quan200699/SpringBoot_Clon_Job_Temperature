@@ -1,6 +1,7 @@
 package com.codegym.demo.controller;
 
 import com.codegym.demo.model.Cities;
+import com.codegym.demo.model.Data;
 import com.codegym.demo.model.Temperatures;
 import com.codegym.demo.model.User;
 import com.codegym.demo.service.city.ICityService;
@@ -25,6 +26,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,11 +41,13 @@ import java.util.regex.Pattern;
 import static com.github.messenger4j.Messenger.*;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static org.apache.tomcat.util.file.ConfigFileLoader.getInputStream;
 
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/webhook")
 public class WebhookController {
+    public static final String API_URL = "http://api.worldweatheronline.com/premium/v1/weather.ashx?key=81fcb678531041aa9b365912201305&q=ha+noi&num_of_days=1&format=xml";
     public static final String URL_CRAWL_HN = "https://www.worldweatheronline.com/ha-noi-weather/vn.aspx";
     public static final String PATTERN_TEMPERATURE = "class=\"report_text temperature\" style=\"(.*?)\">(.*?) &deg;c</div>";
     public static final String PATTERN_CITY_HN = "href=\"https://www.worldweatheronline.com/ha-noi-weather/vn.aspx\" title=\"Ha Noi holiday weather\">(.*?)</a>";
@@ -158,8 +165,12 @@ public class WebhookController {
         logger.error("Message could not be sent. An unexpected error occurred.", e);
     }
 
-    @Scheduled(cron = "0 */10 * * * *", zone = "Asia/Saigon")
+    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
+        try {
+            callAPI(API_URL);
+        } catch (IOException e) {
+        }
         ArrayList<User> users = (ArrayList<User>) userService.findAllByStatusIsTrue();
         Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
         Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE, PATTERN_CITY_DN);
@@ -237,5 +248,42 @@ public class WebhookController {
             cities = result.group(1);
         }
         return cities;
+    }
+
+    Temperatures callAPI(String apiUrl) throws IOException {
+        return getLocalWeatherData(getInputStream(apiUrl));
+    }
+
+    Temperatures getLocalWeatherData(InputStream is) {
+        Temperatures temperatures = new Temperatures();
+        Data data = null;
+
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(Data.class);
+
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+
+            data = (Data) jaxbUnmarshaller.unmarshal(is);
+
+            if (true) {
+                Data.CurrentCondition currentCondition = data.getCurrent_condition();
+                Data.Request request = data.getRequest();
+                String cityName = request.getQuery().split(",")[0].trim();
+                Optional<Cities> citiesOptional = cityService.findByName(cityName);
+                Cities cities = new Cities();
+                if (!citiesOptional.isPresent()) {
+                    cities.setName(cityName);
+                    cityService.save(cities);
+                } else {
+                    cities.setId(citiesOptional.get().getId());
+                }
+                temperatures.setTemperature(currentCondition.getTemp_C());
+                temperatures.setCities(cities);
+            }
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+
+        return temperatures;
     }
 }
