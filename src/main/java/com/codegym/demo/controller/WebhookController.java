@@ -1,9 +1,6 @@
 package com.codegym.demo.controller;
 
-import com.codegym.demo.model.Cities;
-import com.codegym.demo.model.Data;
-import com.codegym.demo.model.Temperatures;
-import com.codegym.demo.model.User;
+import com.codegym.demo.model.*;
 import com.codegym.demo.service.city.ICityService;
 import com.codegym.demo.service.temperature.ITemperatureService;
 import com.codegym.demo.service.user.UserService;
@@ -288,8 +285,8 @@ public class WebhookController {
             data = (Data) jaxbUnmarshaller.unmarshal(is);
 
             if (true) {
-                Data.CurrentCondition currentCondition = data.getCurrent_condition();
-                Data.Request request = data.getRequest();
+                CurrentCondition currentCondition = data.getCurrent_condition();
+                Request request = data.getRequest();
                 String cityName = request.getQuery().split(",")[0].trim();
                 Optional<Cities> citiesOptional = cityService.findByName(cityName);
                 Cities cities = new Cities();
