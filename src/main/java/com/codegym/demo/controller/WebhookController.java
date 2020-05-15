@@ -130,7 +130,7 @@ public class WebhookController {
             user.setStatus(true);
             userService.save(user);
             sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký nhận thông tin thời tiết định kỳ");
-            sendTextMessageUser(senderId, "Chúng tôi sẽ gửi thông tin thời tiết cho bạn 3 giờ/lần");
+            sendTextMessageUser(senderId, "Chúng tôi sẽ gửi thông tin thời tiết cho bạn 10 phút/lần");
             sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ stop");
         }
 
