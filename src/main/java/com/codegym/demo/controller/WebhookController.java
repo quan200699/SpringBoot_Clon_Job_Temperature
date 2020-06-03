@@ -168,7 +168,7 @@ public class WebhookController {
             }
             text = text + "/lần";
             sendTextMessageUser(senderId, text);
-            sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ stop");
+            sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ hủy");
         }
 
     }
@@ -194,9 +194,11 @@ public class WebhookController {
 
     @Bean
     public Long getCronValue() {
-        Optional<CronJobTask> cronJobTaskOptional = cronJobTaskService.findById(cronJobId);
-        if (cronJobTaskOptional.isPresent()) {
-            return cronJobTaskOptional.get().getTime();
+        if(cronJobId!=null){
+            Optional<CronJobTask> cronJobTaskOptional = cronJobTaskService.findById(cronJobId);
+            if (cronJobTaskOptional.isPresent()) {
+                return cronJobTaskOptional.get().getTime();
+            }
         }
         return 5000L;
     }
