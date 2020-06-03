@@ -17,6 +17,7 @@ import com.github.messenger4j.webhook.event.TextMessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -155,7 +156,16 @@ public class WebhookController {
         logger.error("Message could not be sent. An unexpected error occurred.", e);
     }
 
-    @Scheduled(cron = "0 */10 * * * *", zone = "Asia/Saigon")
+    @Bean
+    public Long getCronValue() {
+        System.out.println("Nhập thời gian:");
+        Scanner scanner = new Scanner(System.in);
+        Long time = scanner.nextLong();
+        time = time * 1000;
+        return time;
+    }
+
+    @Scheduled(fixedDelayString = "#{@getCronValue}", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
         ArrayList<User> users = (ArrayList<User>) userService.findAllByStatusIsTrue();
         Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
