@@ -164,15 +164,11 @@ public class WebhookController {
                 text = text + "1 tuần";
                 cronJobId = 6L;
             } else {
-                text = "Dữ liệu bạn gửi không đúng hãy nhập lại";
+                text = text + "1 phút";
             }
-            if (!text.equalsIgnoreCase("Dữ liệu bạn gửi không đúng hãy nhập lại")) {
-                text = text + "/lần";
-                sendTextMessageUser(senderId, text);
-                sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ stop");
-            } else {
-                sendTextMessageUser(senderId, text);
-            }
+            text = text + "/lần";
+            sendTextMessageUser(senderId, text);
+            sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ stop");
         }
 
     }
@@ -198,9 +194,11 @@ public class WebhookController {
 
     @Bean
     public Long getCronValue() {
-        CronJobTask cronJobTask = cronJobTaskService.findById(cronJobId).get();
-        Long time = cronJobTask.getTime();
-        return time;
+        Optional<CronJobTask> cronJobTaskOptional = cronJobTaskService.findById(cronJobId);
+        if (cronJobTaskOptional.isPresent()) {
+            return cronJobTaskOptional.get().getTime();
+        }
+        return 5000L;
     }
 
     @Scheduled(fixedDelayString = "#{@getCronValue}", zone = "Asia/Saigon")
