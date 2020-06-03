@@ -194,13 +194,13 @@ public class WebhookController {
 
     @Bean
     public Long getCronValue() {
-        if(cronJobId!=null){
+        if (cronJobId != null) {
             Optional<CronJobTask> cronJobTaskOptional = cronJobTaskService.findById(cronJobId);
             if (cronJobTaskOptional.isPresent()) {
                 return cronJobTaskOptional.get().getTime();
             }
         }
-        return 5000L;
+        return 60000L;
     }
 
     @Scheduled(fixedDelayString = "#{@getCronValue}", zone = "Asia/Saigon")
