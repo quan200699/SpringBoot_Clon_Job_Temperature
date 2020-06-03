@@ -2,6 +2,7 @@ package com.codegym.demo.controller;
 
 import com.codegym.demo.model.*;
 import com.codegym.demo.service.city.ICityService;
+import com.codegym.demo.service.cron.ICronJobTaskService;
 import com.codegym.demo.service.temperature.ITemperatureService;
 import com.codegym.demo.service.user.UserService;
 import com.github.messenger4j.Messenger;
@@ -53,11 +54,16 @@ public class WebhookController {
     private ITemperatureService temperatureService;
 
     @Autowired
+    private ICronJobTaskService cronJobTaskService;
+
+    @Autowired
     private ICityService cityService;
 
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
 
     private final Messenger messenger;
+
+    private Long cronJobId;
 
     @Autowired
     public WebhookController(final Messenger messenger) {
@@ -131,8 +137,42 @@ public class WebhookController {
             user.setStatus(true);
             userService.save(user);
             sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký nhận thông tin thời tiết định kỳ");
-            sendTextMessageUser(senderId, "Chúng tôi sẽ gửi thông tin thời tiết cho bạn 10 phút/lần");
-            sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ stop");
+            sendTextMessageUser(senderId, "Bạn có thể chọn thời gian để nhận thông tin thời tiết định kỳ trả lời như sau:" +
+                    "\n10 phút" +
+                    "\n1 giờ" +
+                    "\n3 giờ" +
+                    "\n6 giờ" +
+                    "\n3 ngày" +
+                    "\n1 tuần");
+            String text = "Bạn đã đăng ký nhận thông tin thời tiết định kỳ trong ";
+            if (messageText.equalsIgnoreCase("10 phút")) {
+                text = text + "10 phút";
+                cronJobId = 1L;
+            } else if (messageText.equalsIgnoreCase("1 giờ")) {
+                text = text + "1 giờ";
+                cronJobId = 2L;
+            } else if (messageText.equalsIgnoreCase("3 giờ")) {
+                text = text + "3 giờ";
+                cronJobId = 3L;
+            } else if (messageText.equalsIgnoreCase("6 giờ")) {
+                text = text + "6 giờ";
+                cronJobId = 4L;
+            } else if (messageText.equalsIgnoreCase("3 ngày")) {
+                text = text + "3 ngày";
+                cronJobId = 5L;
+            } else if (messageText.equalsIgnoreCase("1 tuần")) {
+                text = text + "1 tuần";
+                cronJobId = 6L;
+            } else {
+                text = "Dữ liệu bạn gửi không đúng hãy nhập lại";
+            }
+            if (!text.equalsIgnoreCase("Dữ liệu bạn gửi không đúng hãy nhập lại")) {
+                text = text + "/lần";
+                sendTextMessageUser(senderId, text);
+                sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ stop");
+            } else {
+                sendTextMessageUser(senderId, text);
+            }
         }
 
     }
@@ -158,10 +198,8 @@ public class WebhookController {
 
     @Bean
     public Long getCronValue() {
-        System.out.println("Nhập thời gian:");
-        Scanner scanner = new Scanner(System.in);
-        Long time = scanner.nextLong();
-        time = time * 1000;
+        CronJobTask cronJobTask = cronJobTaskService.findById(cronJobId).get();
+        Long time = cronJobTask.getTime();
         return time;
     }
 
