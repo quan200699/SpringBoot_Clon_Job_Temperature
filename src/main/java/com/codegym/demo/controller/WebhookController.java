@@ -110,54 +110,28 @@ public class WebhookController {
     private void handleTextMessageEvent(TextMessageEvent event) throws MessengerApiException, MessengerIOException {
         final String messageText = event.text();
         final String senderId = event.senderId();
+        boolean isChange = false;
         Long id = Long.parseLong(senderId);
         if (userService.findById(id).isPresent()) {
             Optional<User> userOptional = userService.findById(id);
             if (userOptional.isPresent()) {
-                boolean isChange = false;
                 if (messageText.equalsIgnoreCase("hủy")) {
                     userOptional.get().setStatus(false);
                     userService.save(userOptional.get());
                     sendTextMessageUser(senderId, "Bạn đã dừng dịch vụ nhận thông tin thời tiết định kỳ");
+                    isChange = false;
                 } else {
                     if (!userOptional.get().isStatus()) {
                         userOptional.get().setStatus(true);
                         userService.save(userOptional.get());
                         sendTextMessageUser(senderId, "Xin chào");
                         sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ cập nhật thông tin thời tiết");
-                        isChange = true;
                     } else {
                         sendTextMessageUser(senderId, "Xin chào");
                         sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ này.");
                         sendTextMessageUser(senderId, "Nếu muốn hủy dịch vụ vui lòng gõ hủy.");
                     }
-                }
-                if(isChange){
-                    String text = "Bạn có thể chọn thời gian nhận thông tin như sau: ";
-                    if (messageText.equalsIgnoreCase("10 phút")) {
-                        text = text + "10 phút";
-                        cronJobId = 1L;
-                    } else if (messageText.equalsIgnoreCase("1 giờ")) {
-                        text = text + "1 giờ";
-                        cronJobId = 2L;
-                    } else if (messageText.equalsIgnoreCase("3 giờ")) {
-                        text = text + "3 giờ";
-                        cronJobId = 3L;
-                    } else if (messageText.equalsIgnoreCase("6 giờ")) {
-                        text = text + "6 giờ";
-                        cronJobId = 4L;
-                    } else if (messageText.equalsIgnoreCase("3 ngày")) {
-                        text = text + "3 ngày";
-                        cronJobId = 5L;
-                    } else if (messageText.equalsIgnoreCase("1 tuần")) {
-                        text = text + "1 tuần";
-                        cronJobId = 6L;
-                    } else {
-                        text = text + "1 phút";
-                    }
-                    text = text + "/lần";
-                    sendTextMessageUser(senderId, text);
-                    sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ hủy");
+                    isChange = true;
                 }
             }
         } else {
@@ -173,9 +147,35 @@ public class WebhookController {
                     "\n6 giờ" +
                     "\n3 ngày" +
                     "\n1 tuần");
-            sendTextMessageUser(senderId, "Để có thể chọn thời gian nhận định kỳ xin hãy gửi 'thay đổi thời gian'");
+            isChange = true;
         }
-
+        if (isChange) {
+            String text = "Bạn có thể chọn thời gian nhận thông tin như sau: ";
+            if (messageText.equalsIgnoreCase("10 phút")) {
+                text = text + "10 phút";
+                cronJobId = 1L;
+            } else if (messageText.equalsIgnoreCase("1 giờ")) {
+                text = text + "1 giờ";
+                cronJobId = 2L;
+            } else if (messageText.equalsIgnoreCase("3 giờ")) {
+                text = text + "3 giờ";
+                cronJobId = 3L;
+            } else if (messageText.equalsIgnoreCase("6 giờ")) {
+                text = text + "6 giờ";
+                cronJobId = 4L;
+            } else if (messageText.equalsIgnoreCase("3 ngày")) {
+                text = text + "3 ngày";
+                cronJobId = 5L;
+            } else if (messageText.equalsIgnoreCase("1 tuần")) {
+                text = text + "1 tuần";
+                cronJobId = 6L;
+            } else {
+                text = text + "1 phút";
+            }
+            text = text + "/lần";
+            sendTextMessageUser(senderId, text);
+            sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ hủy");
+        }
     }
 
     private void sendTextMessageUser(String idSender, String text) {
