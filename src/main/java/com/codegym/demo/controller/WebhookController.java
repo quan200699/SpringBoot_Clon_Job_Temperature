@@ -309,7 +309,7 @@ public class WebhookController {
         Matcher result = temperature.matcher(content);
         String temperatures = "";
         while (result.find()) {
-            temperatures = result.group(2);
+            temperatures = result.group(1);
         }
         return temperatures;
     }
