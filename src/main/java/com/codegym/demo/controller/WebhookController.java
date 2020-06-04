@@ -120,6 +120,34 @@ public class WebhookController {
         if (userService.findById(id).isPresent()) {
             Optional<User> userOptional = userService.findById(id);
             if (userOptional.isPresent()) {
+                if (messageText.equalsIgnoreCase("Hà Nội")) {
+                    sendTextMessageUser(senderId, "Thông tin thời tiết thành phố Hà Nội 3 ngày gần nhất");
+                    Optional<Cities> cities = cityService.findByName("Ha Noi");
+                    if (cities.isPresent()) {
+                        List<Temperatures> temperatures = (List<Temperatures>) temperatureService.findAllByCities(cities.get());
+                        sendTextMessageUser(senderId, "Hôm nay:" + temperatures.get(0) + "");
+                        sendTextMessageUser(senderId, "Hôm qua:" + temperatures.get(1) + "");
+                        sendTextMessageUser(senderId, "Hôm kia:" + temperatures.get(2) + "");
+                    }
+                } else if (messageText.equalsIgnoreCase("Đà Nẵng")) {
+                    sendTextMessageUser(senderId, "Thông tin thời tiết thành phố Đà Nẵng 3 ngày gần nhất");
+                    Optional<Cities> cities = cityService.findByName("Da Nang");
+                    if (cities.isPresent()) {
+                        List<Temperatures> temperatures = (List<Temperatures>) temperatureService.findAllByCities(cities.get());
+                        sendTextMessageUser(senderId, "Hôm nay:" + temperatures.get(0) + "");
+                        sendTextMessageUser(senderId, "Hôm qua:" + temperatures.get(1) + "");
+                        sendTextMessageUser(senderId, "Hôm kia:" + temperatures.get(2) + "");
+                    }
+                } else if (messageText.equalsIgnoreCase("Hồ Chí Minh")) {
+                    sendTextMessageUser(senderId, "Thông tin thời tiết thành phố Hồ Chí Minh 3 ngày gần nhất");
+                    Optional<Cities> cities = cityService.findByName("Ho Chi Minh city");
+                    if (cities.isPresent()) {
+                        List<Temperatures> temperatures = (List<Temperatures>) temperatureService.findAllByCities(cities.get());
+                        sendTextMessageUser(senderId, "Hôm nay:" + temperatures.get(0) + "");
+                        sendTextMessageUser(senderId, "Hôm qua:" + temperatures.get(1) + "");
+                        sendTextMessageUser(senderId, "Hôm kia:" + temperatures.get(2) + "");
+                    }
+                }
                 if (messageText.equalsIgnoreCase("hủy")) {
                     userOptional.get().setStatus(false);
                     userService.save(userOptional.get());
@@ -137,6 +165,7 @@ public class WebhookController {
                     } else {
                         sendTextMessageUser(senderId, "Xin chào");
                         sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ này.");
+                        sendTextMessageUser(senderId, "Gửi Hà Nội, Đà Nẵng, Hồ Chí Minh để tra cứu thông tin thời tiết thành phố trong 3 ngày gần nhất");
                         sendTextMessageUser(senderId, "Nếu muốn hủy dịch vụ vui lòng gõ hủy.");
                     }
                     sendTextMessageUser(senderId, "Bạn có thể chọn thời gian để nhận thông tin thời tiết định kỳ trả lời như sau (mặc định là 1 phút/lần):" +
@@ -231,12 +260,12 @@ public class WebhookController {
                 text += "1 tuần";
             }
         } else {
-            if (!messageText.equalsIgnoreCase("hủy")) {
-                text += "1 phút";
-            }
+            text += "1 phút";
         }
-        sendTextMessageUser(senderId, text + "/lần");
-        sendTextMessageUser(senderId, "Gửi bất kỳ để nhận thông tin 1 phút/lần");
+        if (!messageText.equalsIgnoreCase("hủy")&&!messageText.equalsIgnoreCase("Hà Nội")&&!messageText.equalsIgnoreCase("Đà Nẵng")&&!messageText.equalsIgnoreCase("Hồ Chí Minh")) {
+            sendTextMessageUser(senderId, text + "/lần");
+            sendTextMessageUser(senderId, "Gửi bất kỳ để nhận thông tin 1 phút/lần");
+        }
     }
 
     private void sendTextMessageUser(String idSender, String text) {
