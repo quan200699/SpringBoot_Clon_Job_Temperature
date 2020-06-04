@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.List;
 
 import static com.codegym.demo.StaticVariable.*;
 import static com.github.messenger4j.Messenger.*;
@@ -110,7 +111,13 @@ public class WebhookController {
     private void handleTextMessageEvent(TextMessageEvent event) throws MessengerApiException, MessengerIOException {
         final String messageText = event.text();
         final String senderId = event.senderId();
-        boolean isChange = false;
+        Optional<CronJobTask> cronJobTaskOptional1 = cronJobTaskService.findById(1L);
+        Optional<CronJobTask> cronJobTaskOptional2 = cronJobTaskService.findById(2L);
+        Optional<CronJobTask> cronJobTaskOptional3 = cronJobTaskService.findById(3L);
+        Optional<CronJobTask> cronJobTaskOptional4 = cronJobTaskService.findById(4L);
+        Optional<CronJobTask> cronJobTaskOptional5 = cronJobTaskService.findById(5L);
+        Optional<CronJobTask> cronJobTaskOptional6 = cronJobTaskService.findById(6L);
+        List<CronJobTask> cronJobTaskList = (List<CronJobTask>) cronJobTaskService.findAll();
         Long id = Long.parseLong(senderId);
         if (userService.findById(id).isPresent()) {
             Optional<User> userOptional = userService.findById(id);
@@ -119,7 +126,10 @@ public class WebhookController {
                     userOptional.get().setStatus(false);
                     userService.save(userOptional.get());
                     sendTextMessageUser(senderId, "Bạn đã dừng dịch vụ nhận thông tin thời tiết định kỳ");
-                    isChange = false;
+                    for (CronJobTask cronJobTask : cronJobTaskList) {
+                        cronJobTask.setStatus(false);
+                        cronJobTaskService.save(cronJobTask);
+                    }
                 } else {
                     if (!userOptional.get().isStatus()) {
                         userOptional.get().setStatus(true);
@@ -131,7 +141,13 @@ public class WebhookController {
                         sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ này.");
                         sendTextMessageUser(senderId, "Nếu muốn hủy dịch vụ vui lòng gõ hủy.");
                     }
-                    isChange = true;
+                    sendTextMessageUser(senderId, "Bạn có thể chọn thời gian để nhận thông tin thời tiết định kỳ trả lời như sau (mặc định là 1 phút/lần):" +
+                            "\n10 phút" +
+                            "\n1 giờ" +
+                            "\n3 giờ" +
+                            "\n6 giờ" +
+                            "\n3 ngày" +
+                            "\n1 tuần");
                 }
             }
         } else {
@@ -139,43 +155,87 @@ public class WebhookController {
             user.setId(id);
             user.setStatus(true);
             userService.save(user);
-            sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký nhận thông tin thời tiết định kỳ");
-            sendTextMessageUser(senderId, "Bạn có thể chọn thời gian để nhận thông tin thời tiết định kỳ trả lời như sau:" +
+            sendTextMessageUser(senderId, "Xin chào, bạn đã đăng ký nhận thông tin thời tiết định kỳ thời gian nhận thông tin mặc định là 1 phút/lần");
+            sendTextMessageUser(senderId, "Ngoài ra bạn có thể chọn thời gian để nhận thông tin thời tiết định kỳ bằng cách trả lời như sau:" +
                     "\n10 phút" +
                     "\n1 giờ" +
                     "\n3 giờ" +
                     "\n6 giờ" +
                     "\n3 ngày" +
                     "\n1 tuần");
-            isChange = true;
-        }
-        if (isChange) {
-            String text = "Bạn có thể chọn thời gian nhận thông tin như sau: ";
-            if (messageText.equalsIgnoreCase("10 phút")) {
-                text = text + "10 phút";
-                cronJobId = 1L;
-            } else if (messageText.equalsIgnoreCase("1 giờ")) {
-                text = text + "1 giờ";
-                cronJobId = 2L;
-            } else if (messageText.equalsIgnoreCase("3 giờ")) {
-                text = text + "3 giờ";
-                cronJobId = 3L;
-            } else if (messageText.equalsIgnoreCase("6 giờ")) {
-                text = text + "6 giờ";
-                cronJobId = 4L;
-            } else if (messageText.equalsIgnoreCase("3 ngày")) {
-                text = text + "3 ngày";
-                cronJobId = 5L;
-            } else if (messageText.equalsIgnoreCase("1 tuần")) {
-                text = text + "1 tuần";
-                cronJobId = 6L;
-            } else {
-                text = text + "1 phút";
-            }
-            text = text + "/lần";
-            sendTextMessageUser(senderId, text);
             sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ hủy");
         }
+        String text = "Bạn đã đăng ký nhận thông tin thời tiết định kỳ trong ";
+        if (messageText.equalsIgnoreCase("10 phút")) {
+            if (cronJobTaskOptional1.isPresent()) {
+                cronJobTaskOptional1.get().setStatus(true);
+                cronJobTaskService.save(cronJobTaskOptional1.get());
+                for (CronJobTask cronJobTask : cronJobTaskList) {
+                    if (!cronJobTask.getId().equals(cronJobTaskOptional1.get().getId())) {
+                        cronJobTask.setStatus(false);
+                    }
+                }
+                text += "10 phút";
+            }
+        } else if (messageText.equalsIgnoreCase("1 giờ")) {
+            if (cronJobTaskOptional2.isPresent()) {
+                cronJobTaskOptional2.get().setStatus(true);
+                cronJobTaskService.save(cronJobTaskOptional2.get());
+                for (CronJobTask cronJobTask : cronJobTaskList) {
+                    if (!cronJobTask.getId().equals(cronJobTaskOptional2.get().getId())) {
+                        cronJobTask.setStatus(false);
+                    }
+                }
+                text += "1 giờ";
+            }
+        } else if (messageText.equalsIgnoreCase("3 giờ")) {
+            if (cronJobTaskOptional3.isPresent()) {
+                cronJobTaskOptional3.get().setStatus(true);
+                cronJobTaskService.save(cronJobTaskOptional3.get());
+                for (CronJobTask cronJobTask : cronJobTaskList) {
+                    if (!cronJobTask.getId().equals(cronJobTaskOptional3.get().getId())) {
+                        cronJobTask.setStatus(false);
+                    }
+                }
+                text += "3 giờ";
+            }
+        } else if (messageText.equalsIgnoreCase("6 giờ")) {
+            if (cronJobTaskOptional4.isPresent()) {
+                cronJobTaskOptional4.get().setStatus(true);
+                cronJobTaskService.save(cronJobTaskOptional4.get());
+                for (CronJobTask cronJobTask : cronJobTaskList) {
+                    if (!cronJobTask.getId().equals(cronJobTaskOptional4.get().getId())) {
+                        cronJobTask.setStatus(false);
+                    }
+                }
+                text += "6 giờ";
+            }
+        } else if (messageText.equalsIgnoreCase("3 ngày")) {
+            if (cronJobTaskOptional5.isPresent()) {
+                cronJobTaskOptional5.get().setStatus(true);
+                cronJobTaskService.save(cronJobTaskOptional5.get());
+                for (CronJobTask cronJobTask : cronJobTaskList) {
+                    if (!cronJobTask.getId().equals(cronJobTaskOptional5.get().getId())) {
+                        cronJobTask.setStatus(false);
+                    }
+                }
+                text += "3 ngày";
+            }
+        } else if (messageText.equalsIgnoreCase("1 tuần")) {
+            if (cronJobTaskOptional6.isPresent()) {
+                cronJobTaskOptional6.get().setStatus(true);
+                cronJobTaskService.save(cronJobTaskOptional6.get());
+                for (CronJobTask cronJobTask : cronJobTaskList) {
+                    if (!cronJobTask.getId().equals(cronJobTaskOptional6.get().getId())) {
+                        cronJobTask.setStatus(false);
+                    }
+                }
+                text += "1 tuần";
+            }
+        } else {
+            text += "1 phút";
+        }
+        sendTextMessageUser(senderId, text + "/lần");
     }
 
     private void sendTextMessageUser(String idSender, String text) {
@@ -199,13 +259,29 @@ public class WebhookController {
 
     @Bean
     public Long getCronValue() {
-        if (cronJobId != null) {
-            Optional<CronJobTask> cronJobTaskOptional = cronJobTaskService.findById(cronJobId);
-            if (cronJobTaskOptional.isPresent()) {
-                return cronJobTaskOptional.get().getTime();
-            }
+        Long time;
+        Optional<CronJobTask> cronJobTaskOptional1 = cronJobTaskService.findById(1L);
+        Optional<CronJobTask> cronJobTaskOptional2 = cronJobTaskService.findById(2L);
+        Optional<CronJobTask> cronJobTaskOptional3 = cronJobTaskService.findById(3L);
+        Optional<CronJobTask> cronJobTaskOptional4 = cronJobTaskService.findById(4L);
+        Optional<CronJobTask> cronJobTaskOptional5 = cronJobTaskService.findById(5L);
+        Optional<CronJobTask> cronJobTaskOptional6 = cronJobTaskService.findById(6L);
+        if (cronJobTaskOptional1.isPresent() && cronJobTaskOptional1.get().isStatus()) {
+            time = cronJobTaskOptional1.get().getTime();
+        } else if (cronJobTaskOptional2.isPresent() && cronJobTaskOptional2.get().isStatus()) {
+            time = cronJobTaskOptional2.get().getTime();
+        } else if (cronJobTaskOptional3.isPresent() && cronJobTaskOptional3.get().isStatus()) {
+            time = cronJobTaskOptional3.get().getTime();
+        } else if (cronJobTaskOptional4.isPresent() && cronJobTaskOptional4.get().isStatus()) {
+            time = cronJobTaskOptional4.get().getTime();
+        } else if (cronJobTaskOptional5.isPresent() && cronJobTaskOptional5.get().isStatus()) {
+            time = cronJobTaskOptional5.get().getTime();
+        } else if (cronJobTaskOptional6.isPresent() && cronJobTaskOptional6.get().isStatus()) {
+            time = cronJobTaskOptional6.get().getTime();
+        } else {
+            time = 60000L;
         }
-        return 60000L;
+        return time;
     }
 
     @Scheduled(fixedDelayString = "#{@getCronValue}", zone = "Asia/Saigon")
