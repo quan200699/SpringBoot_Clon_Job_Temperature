@@ -64,8 +64,6 @@ public class WebhookController {
 
     private final Messenger messenger;
 
-    private Long cronJobId;
-
     @Autowired
     public WebhookController(final Messenger messenger) {
         this.messenger = messenger;
@@ -233,9 +231,12 @@ public class WebhookController {
                 text += "1 tuần";
             }
         } else {
-            text += "1 phút";
+            if (!messageText.equalsIgnoreCase("hủy")) {
+                text += "1 phút";
+            }
         }
         sendTextMessageUser(senderId, text + "/lần");
+        sendTextMessageUser(senderId, "Gửi bất kỳ để nhận thông tin 1 phút/lần");
     }
 
     private void sendTextMessageUser(String idSender, String text) {
@@ -286,67 +287,65 @@ public class WebhookController {
 
     @Scheduled(fixedDelayString = "#{@getCronValue}", zone = "Asia/Saigon")
     private void sendTemperatureMessage() {
-        if (cronJobId != null) {
-            ArrayList<User> users = (ArrayList<User>) userService.findAllByStatusIsTrue();
-            Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
-            Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE, PATTERN_CITY_DN);
-            Temperatures currentHCMTemperature = crawlerData(URL_CRAWL_HCM, PATTERN_TEMPERATURE, PATTERN_CITY_HCM);
-            Optional<Cities> citiesOptional = cityService.findById(currentHNTemperature.getCities().getId());
-            if (citiesOptional.isPresent()) {
-                String city = citiesOptional.get().getName();
-                for (User user : users) {
-                    sendTextMessageUser(user.getId().toString(), "Thông tin thời tiết được cập nhật bằng crawl");
-                    sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
-                            + city + " là " + currentHNTemperature.getTemperature() + " độ C");
-                }
+        ArrayList<User> users = (ArrayList<User>) userService.findAllByStatusIsTrue();
+        Temperatures currentHNTemperature = crawlerData(URL_CRAWL_HN, PATTERN_TEMPERATURE, PATTERN_CITY_HN);
+        Temperatures currentDNTemperature = crawlerData(URL_CRAWL_DN, PATTERN_TEMPERATURE, PATTERN_CITY_DN);
+        Temperatures currentHCMTemperature = crawlerData(URL_CRAWL_HCM, PATTERN_TEMPERATURE, PATTERN_CITY_HCM);
+        Optional<Cities> citiesOptional = cityService.findById(currentHNTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thông tin thời tiết được cập nhật bằng crawl");
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentHNTemperature.getTemperature() + " độ C");
             }
-            citiesOptional = cityService.findById(currentDNTemperature.getCities().getId());
-            if (citiesOptional.isPresent()) {
-                String city = citiesOptional.get().getName();
-                for (User user : users) {
-                    sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
-                            + city + " là " + currentDNTemperature.getTemperature() + " độ C");
-                }
+        }
+        citiesOptional = cityService.findById(currentDNTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentDNTemperature.getTemperature() + " độ C");
             }
-            citiesOptional = cityService.findById(currentHCMTemperature.getCities().getId());
-            if (citiesOptional.isPresent()) {
-                String city = citiesOptional.get().getName();
-                for (User user : users) {
-                    sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
-                            + city + " là " + currentHCMTemperature.getTemperature() + " độ C");
-                }
+        }
+        citiesOptional = cityService.findById(currentHCMTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentHCMTemperature.getTemperature() + " độ C");
             }
-            try {
-                currentHNTemperature = callAPI(API_URL_HN);
-                currentDNTemperature = callAPI(API_URL_DN);
-                currentHCMTemperature = callAPI(API_URL_HCM);
-            } catch (IOException e) {
-                e.printStackTrace();
+        }
+        try {
+            currentHNTemperature = callAPI(API_URL_HN);
+            currentDNTemperature = callAPI(API_URL_DN);
+            currentHCMTemperature = callAPI(API_URL_HCM);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        citiesOptional = cityService.findById(currentHNTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thông tin thời tiết được cập nhật bằng cách gọi api");
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentHNTemperature.getTemperature() + " độ C");
             }
-            citiesOptional = cityService.findById(currentHNTemperature.getCities().getId());
-            if (citiesOptional.isPresent()) {
-                String city = citiesOptional.get().getName();
-                for (User user : users) {
-                    sendTextMessageUser(user.getId().toString(), "Thông tin thời tiết được cập nhật bằng cách gọi api");
-                    sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
-                            + city + " là " + currentHNTemperature.getTemperature() + " độ C");
-                }
+        }
+        citiesOptional = cityService.findById(currentDNTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentDNTemperature.getTemperature() + " độ C");
             }
-            citiesOptional = cityService.findById(currentDNTemperature.getCities().getId());
-            if (citiesOptional.isPresent()) {
-                String city = citiesOptional.get().getName();
-                for (User user : users) {
-                    sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
-                            + city + " là " + currentDNTemperature.getTemperature() + " độ C");
-                }
-            }
-            citiesOptional = cityService.findById(currentHCMTemperature.getCities().getId());
-            if (citiesOptional.isPresent()) {
-                String city = citiesOptional.get().getName();
-                for (User user : users) {
-                    sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
-                            + city + " là " + currentHCMTemperature.getTemperature() + " độ C");
-                }
+        }
+        citiesOptional = cityService.findById(currentHCMTemperature.getCities().getId());
+        if (citiesOptional.isPresent()) {
+            String city = citiesOptional.get().getName();
+            for (User user : users) {
+                sendTextMessageUser(user.getId().toString(), "Thời tiết hiện tại thành phố "
+                        + city + " là " + currentHCMTemperature.getTemperature() + " độ C");
             }
         }
     }
