@@ -264,10 +264,8 @@ public class WebhookController {
         } else {
             text += "1 phút";
         }
-        if (!messageText.equalsIgnoreCase("hủy")&&!messageText.equalsIgnoreCase("Hà Nội")&&!messageText.equalsIgnoreCase("Đà Nẵng")&&!messageText.equalsIgnoreCase("Hồ Chí Minh")) {
-            sendTextMessageUser(senderId, text + "/lần");
-            sendTextMessageUser(senderId, "Gửi bất kỳ để nhận thông tin 1 phút/lần");
-        }
+        sendTextMessageUser(senderId, text + "/lần");
+        sendTextMessageUser(senderId, "Gửi bất kỳ để nhận thông tin 1 phút/lần");
     }
 
     private void sendTextMessageUser(String idSender, String text) {
