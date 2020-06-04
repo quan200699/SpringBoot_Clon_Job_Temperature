@@ -15,4 +15,6 @@ public class CronJobTask {
     private Long id;
 
     private Long time;
+
+    private boolean status;
 }
