@@ -125,27 +125,27 @@ public class WebhookController {
                     Optional<Cities> cities = cityService.findByName("Ha Noi");
                     if (cities.isPresent()) {
                         List<Temperatures> temperatures = (List<Temperatures>) temperatureService.findAllByCities(cities.get());
-                        sendTextMessageUser(senderId, "Hôm nay:" + temperatures.get(0) + "");
-                        sendTextMessageUser(senderId, "Hôm qua:" + temperatures.get(1) + "");
-                        sendTextMessageUser(senderId, "Hôm kia:" + temperatures.get(2) + "");
+                        sendTextMessageUser(senderId, "Hôm nay:" + temperatures.get(0).getTemperature() + "");
+                        sendTextMessageUser(senderId, "Hôm qua:" + temperatures.get(1).getTemperature() + "");
+                        sendTextMessageUser(senderId, "Hôm kia:" + temperatures.get(2).getTemperature() + "");
                     }
                 } else if (messageText.equalsIgnoreCase("Đà Nẵng")) {
                     sendTextMessageUser(senderId, "Thông tin thời tiết thành phố Đà Nẵng 3 ngày gần nhất");
                     Optional<Cities> cities = cityService.findByName("Da Nang");
                     if (cities.isPresent()) {
                         List<Temperatures> temperatures = (List<Temperatures>) temperatureService.findAllByCities(cities.get());
-                        sendTextMessageUser(senderId, "Hôm nay:" + temperatures.get(0) + "");
-                        sendTextMessageUser(senderId, "Hôm qua:" + temperatures.get(1) + "");
-                        sendTextMessageUser(senderId, "Hôm kia:" + temperatures.get(2) + "");
+                        sendTextMessageUser(senderId, "Hôm nay:" + temperatures.get(0).getTemperature() + "");
+                        sendTextMessageUser(senderId, "Hôm qua:" + temperatures.get(1).getTemperature() + "");
+                        sendTextMessageUser(senderId, "Hôm kia:" + temperatures.get(2).getTemperature() + "");
                     }
                 } else if (messageText.equalsIgnoreCase("Hồ Chí Minh")) {
                     sendTextMessageUser(senderId, "Thông tin thời tiết thành phố Hồ Chí Minh 3 ngày gần nhất");
                     Optional<Cities> cities = cityService.findByName("Ho Chi Minh city");
                     if (cities.isPresent()) {
                         List<Temperatures> temperatures = (List<Temperatures>) temperatureService.findAllByCities(cities.get());
-                        sendTextMessageUser(senderId, "Hôm nay:" + temperatures.get(0) + "");
-                        sendTextMessageUser(senderId, "Hôm qua:" + temperatures.get(1) + "");
-                        sendTextMessageUser(senderId, "Hôm kia:" + temperatures.get(2) + "");
+                        sendTextMessageUser(senderId, "Hôm nay:" + temperatures.get(0).getTemperature() + "");
+                        sendTextMessageUser(senderId, "Hôm qua:" + temperatures.get(1).getTemperature() + "");
+                        sendTextMessageUser(senderId, "Hôm kia:" + temperatures.get(2).getTemperature() + "");
                     }
                 }
                 if (messageText.equalsIgnoreCase("hủy")) {
@@ -162,6 +162,7 @@ public class WebhookController {
                         userService.save(userOptional.get());
                         sendTextMessageUser(senderId, "Xin chào");
                         sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ cập nhật thông tin thời tiết");
+                        sendTextMessageUser(senderId, "Gửi Hà Nội, Đà Nẵng, Hồ Chí Minh để tra cứu thông tin thời tiết thành phố trong 3 ngày gần nhất");
                     } else {
                         sendTextMessageUser(senderId, "Xin chào");
                         sendTextMessageUser(senderId, "Bạn đã đăng ký dịch vụ này.");
@@ -190,6 +191,7 @@ public class WebhookController {
                     "\n6 giờ" +
                     "\n3 ngày" +
                     "\n1 tuần");
+            sendTextMessageUser(senderId, "Gửi Hà Nội, Đà Nẵng, Hồ Chí Minh để tra cứu thông tin thời tiết thành phố trong 3 ngày gần nhất");
             sendTextMessageUser(senderId, "Nếu bạn muốn dừng không nhận thông tin thời tiết định kỳ \nGõ hủy");
         }
         String text = "Bạn đã đăng ký nhận thông tin thời tiết định kỳ trong ";
